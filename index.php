@@ -123,13 +123,16 @@ if (!class_exists("eralha_register_form")){
 				$errorMSG .= "» Código Postal<br />";
 				$errCount ++;
 			}
-			if($_POST["user_login_register"] == ""){
-				$errorMSG .= "» Username<br />";
-				$errCount ++;
-			}
-			if($_POST["user_pass_register"] == ""){
-				$errorMSG .= "» Password<br />";
-				$errCount ++;
+
+			if(!is_user_logged_in()){ 
+				if($_POST["user_login_register"] == ""){
+					$errorMSG .= "» Username<br />";
+					$errCount ++;
+				}
+				if($_POST["user_pass_register"] == ""){
+					$errorMSG .= "» Password<br />";
+					$errCount ++;
+				}
 			}
 			$errorMSG = "<strong>Please Check the Following Fields:</strong><blockquote>".$errorMSG."</blockquote>";
 
@@ -148,29 +151,36 @@ if (!class_exists("eralha_register_form")){
 
 				if(is_user_logged_in()){ 
 					$responseHTML = file_get_contents($pluginDir."templates/user_logged_in.php");
+					$uinfo = get_userdata(get_current_user_id());
 
 					if(isset($_POST["wp-submit-update"])){
+						//IF WE ARE HERE USER TRY TO UPDATE USER INFO
+
 						if($vResult[1] == 0){
-							//update USER
-							wp_update_user(array ('ID' => get_current_user_id(), 
-												  'first_name' => $_POST["first_name"],
-												  'last_name' => $_POST["last_name"],
-												  'nickname' => $_POST["nickname"],
-												  'user_email' => $_POST["user_email"]
-										   ) ) ;
-							update_user_meta(get_current_user_id(), "adress", $_POST["adress"]);
-							update_user_meta(get_current_user_id(), "localidade", $_POST["localidade"]);
-							update_user_meta(get_current_user_id(), "codPostal", $_POST["codPostal"]);
+							//IF EVERY THINK IS VALIDATED, UPDATE USER INFO IN TABLE USERS
+								wp_update_user(array(
+									'ID' => get_current_user_id(), 
+									'first_name' => $_POST["first_name"],
+									'last_name' => $_POST["last_name"],
+									'nickname' => $_POST["nickname"],
+									'user_email' => $_POST["user_email"]
+								));
+
+							//UPDATE USER META INFO
+								update_user_meta(get_current_user_id(), "adress", $_POST["adress"]);
+								update_user_meta(get_current_user_id(), "localidade", $_POST["localidade"]);
+								update_user_meta(get_current_user_id(), "codPostal", $_POST["codPostal"]);
 
 							$responseHTML = str_replace("{error_message}", "<strong>Dados actualizados!</strong>", $responseHTML);
 
 							$uinfo = get_userdata(get_current_user_id());
 						}else{
 							$errorMSG = "<strong>Please Check the Following Fields:</strong><blockquote>".$errorMSG."</blockquote>";
-							$responseHTML = str_replace("{error_message}", $errorMSG, $responseHTML);
+							$responseHTML = str_replace("{error_message}", $vResult[0], $responseHTML);
 						}
 					}
 
+					//PARSE VIEW
 					$responseHTML = str_replace("{error_message}", "", $responseHTML);
 					$responseHTML = str_replace("{REQUEST_URI}", $_SERVER['REQUEST_URI'], $responseHTML);
 					$responseHTML = str_replace("{first_name}", $uinfo->first_name, $responseHTML);
