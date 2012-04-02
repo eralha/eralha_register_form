@@ -157,7 +157,7 @@ if (!class_exists("eralha_register_form")){
 						//IF WE ARE HERE USER TRY TO UPDATE USER INFO
 
 						if($vResult[1] == 0){
-							//IF EVERY THINK IS VALIDATED, UPDATE USER INFO IN TABLE USERS
+							//IF EVERY THING IS VALIDATED, UPDATE USER INFO IN TABLE USERS
 								wp_update_user(array(
 									'ID' => get_current_user_id(), 
 									'first_name' => $_POST["first_name"],
