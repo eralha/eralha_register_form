@@ -77,49 +77,61 @@ if (!class_exists("eralha_register_form")){
 			$errorMSG = "";
 			$errCount = 0;
 
-			if(isset($_POST["wp-submit-register"])){
+			if(!isset($_POST["wp-submit-register"]) && !isset($_POST["wp-submit-update"])){
+				return;
+			}
+
+			if(is_user_logged_in()){ 
+				$uinfo = get_userdata(get_current_user_id());
+
+				if(email_exists($_POST["user_email"]) && $uinfo->data->user_email != $_POST["user_email"]){
+					$errorMSG .= "» O Email que escolheu já existe<br />";
+					$errCount ++;
+				}
+			}else{
 				if(email_exists($_POST["user_email"])){
 					$errorMSG .= "» O Email que escolheu já existe<br />";
 					$errCount ++;
 				}
-				if($_POST["first_name"] == ""){
-					$errorMSG .= "» Primeiro Nome<br />";
-					$errCount ++;
-				}
-				if($_POST["last_name"] == ""){
-					$errorMSG .= "» Ultimo Nome<br />";
-					$errCount ++;
-				}
-				if($_POST["nickname"] == ""){
-					$errorMSG .= "» Nickname<br />";
-					$errCount ++;
-				}
-				if($_POST["user_email"] == ""){
-					$errorMSG .= "» Email<br />";
-					$errCount ++;
-				}
-				if($_POST["adress"] == ""){
-					$errorMSG .= "» Morada<br />";
-					$errCount ++;
-				}
-				if($_POST["localidade"] == ""){
-					$errorMSG .= "» Localidade<br />";
-					$errCount ++;
-				}
-				if($_POST["codPostal"] == ""){
-					$errorMSG .= "» Código Postal<br />";
-					$errCount ++;
-				}
-				if($_POST["user_login_register"] == ""){
-					$errorMSG .= "» Username<br />";
-					$errCount ++;
-				}
-				if($_POST["user_pass_register"] == ""){
-					$errorMSG .= "» Password<br />";
-					$errCount ++;
-				}
-				$errorMSG = "<strong>Please Check the Following Fields:</strong><blockquote>".$errorMSG."</blockquote>";
 			}
+
+			if($_POST["first_name"] == ""){
+				$errorMSG .= "» Primeiro Nome<br />";
+				$errCount ++;
+			}
+			if($_POST["last_name"] == ""){
+				$errorMSG .= "» Ultimo Nome<br />";
+				$errCount ++;
+			}
+			if($_POST["nickname"] == ""){
+				$errorMSG .= "» Nickname<br />";
+				$errCount ++;
+			}
+			if($_POST["user_email"] == ""){
+				$errorMSG .= "» Email<br />";
+				$errCount ++;
+			}
+			if($_POST["adress"] == ""){
+				$errorMSG .= "» Morada<br />";
+				$errCount ++;
+			}
+			if($_POST["localidade"] == ""){
+				$errorMSG .= "» Localidade<br />";
+				$errCount ++;
+			}
+			if($_POST["codPostal"] == ""){
+				$errorMSG .= "» Código Postal<br />";
+				$errCount ++;
+			}
+			if($_POST["user_login_register"] == ""){
+				$errorMSG .= "» Username<br />";
+				$errCount ++;
+			}
+			if($_POST["user_pass_register"] == ""){
+				$errorMSG .= "» Password<br />";
+				$errCount ++;
+			}
+			$errorMSG = "<strong>Please Check the Following Fields:</strong><blockquote>".$errorMSG."</blockquote>";
 
 			return array($errorMSG, $errCount);
 		}
@@ -136,46 +148,9 @@ if (!class_exists("eralha_register_form")){
 
 				if(is_user_logged_in()){ 
 					$responseHTML = file_get_contents($pluginDir."templates/user_logged_in.php");
-					$uinfo = get_userdata(get_current_user_id());
 
 					if(isset($_POST["wp-submit-update"])){
-						$errorMSG = "";
-						$errCount = 0;
-
-						if(email_exists($_POST["user_email"]) && $uinfo->data->user_email != $_POST["user_email"]){
-							$errorMSG .= "» O Email que escolheu já existe<br />";
-							$errCount ++;
-						}
-						if($_POST["first_name"] == ""){
-							$errorMSG .= "» Primeiro Nome<br />";
-							$errCount ++;
-						}
-						if($_POST["last_name"] == ""){
-							$errorMSG .= "» Ultimo Nome<br />";
-							$errCount ++;
-						}
-						if($_POST["nickname"] == ""){
-							$errorMSG .= "» Nickname<br />";
-							$errCount ++;
-						}
-						if($_POST["user_email"] == ""){
-							$errorMSG .= "» Email<br />";
-							$errCount ++;
-						}
-						if($_POST["adress"] == ""){
-							$errorMSG .= "» Morada<br />";
-							$errCount ++;
-						}
-						if($_POST["localidade"] == ""){
-							$errorMSG .= "» Localidade<br />";
-							$errCount ++;
-						}
-						if($_POST["codPostal"] == ""){
-							$errorMSG .= "» Código Postal<br />";
-							$errCount ++;
-						}
-
-						if($errCount == 0){
+						if($vResult[1] == 0){
 							//update USER
 							wp_update_user(array ('ID' => get_current_user_id(), 
 												  'first_name' => $_POST["first_name"],
